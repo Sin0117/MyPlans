@@ -4,13 +4,35 @@
     <head>
         <title>#{get 'title' /}</title>
         <meta charset="${_response_encoding}">
-        <link rel="stylesheet" media="screen" href="@{'/public/stylesheets/main.css'}">
+        <link rel="stylesheet" type="text/css" media="screen" href="@{'/public/stylesheets/main.css'}">
         #{get 'moreStyles' /}
         <link rel="shortcut icon" type="image/png" href="@{'/public/images/favicon.png'}">
         <script src="@{'/public/javascripts/jquery-1.6.4.min.js'}" type="text/javascript" charset="${_response_encoding}"></script>
         #{get 'moreScripts' /}
+        <script>
+	        (function(){
+	            if(!/*@cc_on!@*/0)return;
+	            var e = "abbr,article,aside,audio,canvas,datalist,details,dialog,eventsource,figure,footer,header,hgroup,mark,menu,meter,nav,output,progress,section,time,video".split(','),
+	            i=e.length;
+	            while(i--){document.createElement(e[i])}
+	        })();
+        </script>
     </head>
     <body>
-        #{doLayout /}
+        <div class="doc">
+            <header id="hd">
+                <h1 id="logo"><a href="@{Application.index}">360手机主题</a></h1>
+                <nav id="mainnav">
+                    <ul>
+                        <li><a href="javascript:void(0);">反馈</a></li>
+                        <li><a href="javascript:void(0);">登录</a></li>
+                        <li><a href="javascript:void(0);">注销</a></li>
+                    </ul>
+                </nav>
+            </header>
+            <div id="main">#{doLayout /}</div>
+            <footer id="ft"><p>author: <a href="mailTo:sunjiaxiang@gmail.com">sjx</a></p></footer>
+        </div>
+        
     </body>
 </html>
