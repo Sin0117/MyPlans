@@ -16,8 +16,8 @@
 	<label>Y:<input id="posYIpt" type="number" min="1" step="1" /></label>
 	<label>Z:<input id="posZIpt" type="number" min="1" step="1" /></label>
 </div>
+<script src="@{'/public/javascripts/Draw/index.js'}" type="text/javascript"></script>
 <script>
 	var draws = '#{list draws, as:'draw'}${draw},#{/list}'.split(',');
 	console.log(draws);
 </script>
-<script src="@{'/public/javascripts/Draw/index.js'}" type="text/javascript"></script>
