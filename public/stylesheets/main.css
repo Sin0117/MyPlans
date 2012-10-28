@@ -1,6 +1,19 @@
 * {padding: 0; margin: 0;}
-body {font-family:"微软雅黑, Microsoft YaHei, 宋体, arial, helvetica, sans-serif"; font-size: 12px; background: url(/public/images/bg.png);}
+body {font-family:"微软雅黑, Microsoft YaHei, 宋体, arial, helvetica, sans-serif"; color: #666; font-size: 12px;background: url(/public/images/bg.png); }
+a {text-decoration: none; color: #666; }
+a:hover {text-decoration: underline; color: #333;}
 
+#hd, #ft, #main {width: 960px; margin: 0 auto;}
+#hd {height: 72px;}
 
-#logo {}
+#logo {padding-left: 32px; color: #fff; display: block; }
 
+#ft {clear:both; display: block; text-align: center; line-height: 48px; font-size: 16px; color: #333;}
+#ft a {color: #333;}
+
+.main－nav {}
+.main－nav ul {list-style: none;}
+.main－nav li {float: left;}
+
+#main {background-color: #EFEFEF; -webkit-box-shadow: 4px 4px 4px #3A3A3A; -moz-box-shadow: 4px 4px 4px #3A3A3A; -o-box-shadow: 4px 4px 4px #3A3A3A; box-shadow: 4px 4px 4px #3A3A3A; }
+#main {}
