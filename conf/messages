@@ -1,3 +1,9 @@
 # You can specialize this file for each language.
 # For example, for French create a messages.fr file
 #
+
+LINE=绘制直线
+RECTANGLE=绘制矩形
+ARC=绘制弧线
+OVAL=绘制椭圆形
+TEXT=绘制文字

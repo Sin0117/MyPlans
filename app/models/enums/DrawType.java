@@ -12,10 +12,8 @@ public enum DrawType {
 	RECTANGLE,
 	/** 绘制弧线 */
 	ARC,
-	/** 绘制椭圆 */
+	/** 绘制椭圆形 */
 	OVAL,
-	/** 绘制圆形 */
-	ROUND,
 	/** 绘制文字 */
 	TEXT,
 }

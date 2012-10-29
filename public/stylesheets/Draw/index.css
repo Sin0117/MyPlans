@@ -1,7 +1,29 @@
 
-#operation {}
+#operation {height: 26px; border-bottom: 1px solid #777; position: fixed; top: 72px; width: 960px;}
+/** 操作项整体样式. */
+#operation a { border: 1px solid #EFEFEF; margin: 4px 8px; float: left; display: block; width: 16px; height: 16px; background: url(/public/images/operations-bg.png) no-repeat; }
+#operation a:hover {text-decoration: none;}
+#operation a.on {border: 1px solid #999; }
+/** 操作项单独样式. */
+#operation #opt_LINE {background-position: 0px 0px;}
+#operation #opt_LINE:hover {background-position: 0px -16px;}
+#operation #opt_LINE.on {background-position: 0px -32px;}
+#operation #opt_RECTANGLE {background-position: -16px 0px;}
+#operation #opt_RECTANGLE:hover {background-position: -16px -16px;}
+#operation #opt_RECTANGLE.on {background-position: -16px -32px;}
+#operation #opt_ARC {background-position: -32px 0px;}
+#operation #opt_ARC:hover {background-position: -32px -16px;}
+#operation #opt_ARC.on {background-position: -32px -32px;}
+#operation #opt_OVAL {background-position: -48px 0px;}
+#operation #opt_OVAL:hover {background-position: -48px -16px;}
+#operation #opt_OVAL.on {background-position: -48px -32px;}
+#operation #opt_TEXT {background-position: -64px 0px;}
+#operation #opt_TEXT:hover {background-position: -64px -16px;}
+#operation #opt_TEXT.on {background-position: -64px -32px;}
 
-#stage {}
+#stage {padding: 32px;}
 
-#setting { height: 48px; line-height: 48px; }
+#setting { height: 28px; line-height: 28px; border-top: 1px solid #777; position: fixed; bottom: 0px; width: 960px; }
+#setting label {margin: 0 4px; }
+#setting .num-ipt {width: 64px; }
 
