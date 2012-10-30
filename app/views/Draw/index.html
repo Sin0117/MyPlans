@@ -5,9 +5,7 @@
 <link rel="stylesheet" type="text/css" media="screen" href="@{'/public/stylesheets/Draw/index.css'}">
 
 <div id="operation"></div>
-<div id="stage">
-这里就是内容咯
-</div>
+<div id="stage"></div>
 <div id="setting"></div>
 <script src="@{'/public/javascripts/Draw/index.js'}" type="text/javascript"></script>
 <script>
@@ -19,6 +17,7 @@
             elem: $('#operation'),
             head: $('#hd'),
             items: draws,
+            opts: ['NEW', 'SAVE', 'OFF', 'ON', 'BACK', 'FORWARD']
         });
 		
 		var drawStage = new MT.components.Sketch({

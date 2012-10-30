@@ -14,7 +14,14 @@ MT.components = MT.components || {};
 	MT.components.Operation.prototype = {
 		opt: {},
 		_render: function () {
-			var opt = this.opt, items = opt.items, html = [];
+			var opt = this.opt, html = [];
+			html.push(this._renderItem( opt.items));
+			html.push(this._renderItem( opt.opts));
+			opt.elem.append(html.join(''));
+		},
+		/** 渲染操作项. */
+		_renderItem: function (items) {
+			var html = []
 			for (var item in items) {
 				var val = items[item];
 				if (!val) continue;
@@ -24,8 +31,9 @@ MT.components = MT.components || {};
 				html.push(i18n(val));
 				html.push('">&nbsp;</a>');
 			}
-			opt.elem.append(html.join(''));
+			return html.join('');
 		},
+		/** 初始化事件. */
 		_initEvents: function () {
 			var me = this;
 			this.opt.elem.find('a').live('click', function () {
@@ -57,18 +65,16 @@ MT.components = MT.components || {};
 	/** 绘图区. */
 	MT.components.Sketch = function (options) {
 		this.opt = $.extend({}, this.opt, options);
-		 
-		 this._render();
+		
+		this.box = $('<canvas id="Sketchpad"></canvas>');
+		this._render();
 	}
 	MT.components.Sketch.prototype = {
 		opt: {},
 		_render: function () {
-			/*
-			elem: 'stage',
-            width: ${width},
-            height: ${height},
-            items: draws,
-            */
+			this.opt.elem.append(this.box);
+			this.box.width(this.opt.width);
+			this.box.height(this.opt.height);
 		}
 	}
 	
@@ -81,16 +87,16 @@ MT.components = MT.components || {};
 	}
 	MT.components.Setting.prototype = {
 		opt: {
-			size: 28
+			size: 56
 		},
 		_render: function () {
-			var html = ['<label>颜色:<input id="colorIpt" class="num-ipt" type="number" value="0" min="0" max="0xFFFFFF" step="1" /></label>'];
+			var html = ['<label>颜色:<input id="colorIpt" type="text" value="0" min="0" max="0xFFFFFF" step="1" /></label>'];
 			html.push('<label>透明度:<input id="aliphiIpt" type="range" value="1" min="0" max="1" step="0.05" /></label>');
-			html.push('<label>线宽度:<input id="sizeIpt" class="num-ipt" type="number" value="1" min="1" max="20" step="1" /></label>');
-			html.push('坐标微调:');
-			html.push('<label>X:<input id="posXIpt" class="num-ipt" type="number" min="1" step="1" /></label>');
-			html.push('<label>Y:<input id="posYIpt" class="num-ipt" type="number" min="1" step="1" /></label>');
-			html.push('<label>Z:<input id="posZIpt" class="num-ipt" type="number" min="1" step="1" /></label>');
+			html.push('<label>线条宽:<input id="sizeIpt" class="ipt-32" type="number" value="1" min="1" max="20" step="1" /></label>');
+			html.push('<br>坐标参数:');
+			html.push('<label>X:<input id="posXIpt" class="ipt-32" type="number" min="1" step="1" /></label>');
+			html.push('<label>Y:<input id="posYIpt" class="ipt-32" type="number" min="1" step="1" /></label>');
+			html.push('<label>Z:<input id="posZIpt" class="ipt-32" type="number" min="1" step="1" /></label>');
 			this.opt.elem.append(html.join(''));
 		},
 		_initEvents: function () {

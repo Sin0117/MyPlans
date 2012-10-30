@@ -1,5 +1,5 @@
 
-#operation {height: 26px; border-bottom: 1px solid #777; position: fixed; top: 72px; width: 960px;}
+#operation {height: 26px; border-bottom: 1px solid #777; position: fixed; top: 72px; width: 100%; background: #EFEFEF; }
 /** 操作项整体样式. */
 #operation a { border: 1px solid #EFEFEF; margin: 4px 8px; float: left; display: block; width: 16px; height: 16px; background: url(/public/images/operations-bg.png) no-repeat; }
 #operation a:hover {text-decoration: none;}
@@ -20,10 +20,30 @@
 #operation #opt_TEXT {background-position: -64px 0px;}
 #operation #opt_TEXT:hover {background-position: -64px -16px;}
 #operation #opt_TEXT.on {background-position: -64px -32px;}
+/** 操作列表中的控制项. */
+#operation #opt_SAVE {background-position: -64px 0px;}
+#operation #opt_SAVE:hover {background-position: -64px -16px;}
+#operation #opt_SAVE.on {background-position: -64px -32px;}
+#operation #opt_NEW {background-position: -64px 0px;}
+#operation #opt_NEW:hover {background-position: -64px -16px;}
+#operation #opt_NEW.on {background-position: -64px -32px;}
+#operation #opt_OFF {background-position: -64px 0px;}
+#operation #opt_OFF:hover {background-position: -64px -16px;}
+#operation #opt_OFF.on {background-position: -64px -32px;}
+#operation #opt_ON {background-position: -64px 0px;}
+#operation #opt_ON:hover {background-position: -64px -16px;}
+#operation #opt_ON.on {background-position: -64px -32px;}
+#operation #opt_BACK {background-position: -64px 0px;}
+#operation #opt_BACK:hover {background-position: -64px -16px;}
+#operation #opt_BACK.on {background-position: -64px -32px;}
+#operation #opt_FORWARD {background-position: -64px 0px;}
+#operation #opt_FORWARD:hover {background-position: -64px -16px;}
+#operation #opt_FORWARD.on {background-position: -64px -32px;}
 
-#stage {padding: 32px;}
+#stage {padding: 32px; text-align: center; }
+#Sketchpad {padding: 32px; background: #FFF; border: 1px solid #333; }
 
-#setting { height: 28px; line-height: 28px; border-top: 1px solid #777; position: fixed; bottom: 0px; width: 960px; }
+#setting { text-align: center; height: 56px; line-height: 28px; border-top: 1px solid #777; position: fixed; bottom: 0px; width: 100%; background: #EFEFEF;  }
 #setting label {margin: 0 4px; }
-#setting .num-ipt {width: 64px; }
+#setting input {width: 48px; }
 

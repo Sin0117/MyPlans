@@ -3,7 +3,7 @@ body {font-family:"微软雅黑, Microsoft YaHei, 宋体, arial, helvetica, sans
 a {text-decoration: none; color: #666; }
 a:hover {text-decoration: underline; color: #333;}
 
-#hd, #ft, #main {width: 960px; margin: 0 auto;}
+#hd, #ft, #main {width: 100%; margin: 0 auto;}
 #hd {height: 72px;}
 
 #logo {padding-left: 32px; color: #fff; display: block; }
