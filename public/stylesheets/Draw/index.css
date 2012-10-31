@@ -1,7 +1,7 @@
 
-#operation {height: 26px; border-bottom: 1px solid #777; position: fixed; top: 72px; width: 100%; background: #EFEFEF; }
+#operation { height: 26px; border-bottom: 1px solid #777; position: fixed; top: 72px; width: 100%; background: #EFEFEF; z-index: 8; }
 /** 操作项整体样式. */
-#operation a { border: 1px solid #EFEFEF; margin: 4px 8px; float: left; display: block; width: 16px; height: 16px; background: url(/public/images/operations-bg.png) no-repeat; }
+#operation a { border: 1px solid #EFEFEF; margin: 4px 4px; float: left; display: block; width: 16px; height: 16px; background: url(/public/images/operations-bg.png) no-repeat; }
 #operation a:hover {text-decoration: none;}
 #operation a.on {border: 1px solid #999; }
 /** 操作项单独样式. */
@@ -21,29 +21,33 @@
 #operation #opt_TEXT:hover {background-position: -64px -16px;}
 #operation #opt_TEXT.on {background-position: -64px -32px;}
 /** 操作列表中的控制项. */
-#operation #opt_SAVE {background-position: -64px 0px;}
-#operation #opt_SAVE:hover {background-position: -64px -16px;}
-#operation #opt_SAVE.on {background-position: -64px -32px;}
-#operation #opt_NEW {background-position: -64px 0px;}
-#operation #opt_NEW:hover {background-position: -64px -16px;}
-#operation #opt_NEW.on {background-position: -64px -32px;}
-#operation #opt_OFF {background-position: -64px 0px;}
-#operation #opt_OFF:hover {background-position: -64px -16px;}
-#operation #opt_OFF.on {background-position: -64px -32px;}
-#operation #opt_ON {background-position: -64px 0px;}
-#operation #opt_ON:hover {background-position: -64px -16px;}
-#operation #opt_ON.on {background-position: -64px -32px;}
-#operation #opt_BACK {background-position: -64px 0px;}
-#operation #opt_BACK:hover {background-position: -64px -16px;}
-#operation #opt_BACK.on {background-position: -64px -32px;}
-#operation #opt_FORWARD {background-position: -64px 0px;}
-#operation #opt_FORWARD:hover {background-position: -64px -16px;}
-#operation #opt_FORWARD.on {background-position: -64px -32px;}
+#operation #opt_CURSOR {background-position: -96px 0px;}
+#operation #opt_CURSOR:hover {background-position: -96px -16px;}
+#operation #opt_CURSOR.on {background-position: -96px -32px;}
+#operation #opt_SAVE {background-position: -80px 0px;}
+#operation #opt_SAVE:hover {background-position: -80px -16px;}
+#operation #opt_SAVE.on {background-position: -80px -32px; border: 1px solid #EFEFEF; }
+#operation #opt_NEW {background-position: -112px 0px;}
+#operation #opt_NEW:hover {background-position: -112px -16px;}
+#operation #opt_NEW.on {background-position: -112px -32px; border: 1px solid #EFEFEF; }
+#operation #opt_OFF {background-position: -160px 0px;}
+#operation #opt_OFF:hover {background-position: -160px -16px;}
+#operation #opt_OFF.on {background-position: -160px -32px;}
+#operation #opt_ON {background-position: -176px 0px;}
+#operation #opt_ON:hover {background-position: -176px -16px;}
+#operation #opt_ON.on {background-position: -176px -32px;}
+#operation #opt_BACK {background-position: -128px 0px;}
+#operation #opt_BACK:hover {background-position: -128px -16px;}
+#operation #opt_BACK.on {background-position: -128px -32px; border: 1px solid #EFEFEF; }
+#operation #opt_FORWARD {background-position: -144px 0px;}
+#operation #opt_FORWARD:hover {background-position: -144px -16px;}
+#operation #opt_FORWARD.on {background-position: -144px -32px; border: 1px solid #EFEFEF; }
 
-#stage {padding: 32px; text-align: center; }
-#Sketchpad {padding: 32px; background: #FFF; border: 1px solid #333; }
+#stage {padding: 32px 0 60px; text-align: center; }
+#Sketchpad {cursor: default; padding: 32px; border: 1px solid #333; position: absolute; z-index: 4; overflow: hidden; display: none; }
+#DisplayCard { cursor: default; padding: 32px; background: #FFF; border: 1px solid #333; overflow: hidden; }
 
-#setting { text-align: center; height: 56px; line-height: 28px; border-top: 1px solid #777; position: fixed; bottom: 0px; width: 100%; background: #EFEFEF;  }
+#setting { text-align: center; height: 56px; line-height: 28px; border-top: 1px solid #777; position: fixed; bottom: 0px; width: 100%; background: #EFEFEF; z-index: 8; }
 #setting label {margin: 0 4px; }
 #setting input {width: 48px; }
 

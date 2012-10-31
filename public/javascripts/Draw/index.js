@@ -1,6 +1,7 @@
 
 var MT = MT || {};
 MT.components = MT.components || {};
+MT.data = MT.data || {};
 
 (function () {
 	
@@ -27,6 +28,8 @@ MT.components = MT.components || {};
 				if (!val) continue;
 				html.push('<a href="javascript:void(0)", id="opt_');
 				html.push(val);
+				html.push('" data-operation="');
+				html.push(val);
 				html.push('" title="');
 				html.push(i18n(val));
 				html.push('">&nbsp;</a>');
@@ -39,6 +42,7 @@ MT.components = MT.components || {};
 			this.opt.elem.find('a').live('click', function () {
 				me.opt.elem.find('a').removeClass('on');
 				this.className = 'on';
+				$(window).trigger('onReadyDraw', [$(this).data('operation')]);
 			});
 			this.opt.scroll = $(window).scrollTop();
 			this.opt.top = this.opt.head.get(0).offsetHeight;
@@ -66,16 +70,89 @@ MT.components = MT.components || {};
 	MT.components.Sketch = function (options) {
 		this.opt = $.extend({}, this.opt, options);
 		
+		this.view = $('<canvas id="DisplayCard" class="shadow2"></canvas>');
+		this.viewCtx = this.view.get(0).getContext('2d');
 		this.box = $('<canvas id="Sketchpad"></canvas>');
+		this.boxCtx = this.box.get(0).getContext('2d');
+		//修复chrome下光标样式的问题  
+		this.box.live('selectstart', function () {
+            return false;  
+        });
+		this.history = [];
+		this.curDrawElem = null;
+		this.lastX = -1;
+		this.lastY = -1;
 		this._render();
+		this._initEvents();
 	}
 	MT.components.Sketch.prototype = {
 		opt: {},
 		_render: function () {
-			this.opt.elem.append(this.box);
+			this.opt.elem.append(this.view).append(this.box);
+			this.view.width(this.opt.width);
+			this.view.height(this.opt.height);
 			this.box.width(this.opt.width);
 			this.box.height(this.opt.height);
+			this.resize();
+		},
+		_initEvents: function () {
+			var me = this;
+			$(window).bind('onReadyDraw', function (evt, type) {
+				me.readyDraw();
+			});
+			this.box.bind('click', function (evt) {
+				if (!!me.curDrawElem) {
+					
+				} else {
+				}
+				me.lastX = me.pos.left - evt.clientX;
+				me.lastY = me.pos.top - evt.clientY;
+			});
+		},
+		readyDraw: function () {
+			this.boxCtx.clearRect(0, 0, this.opt.width, this.opt.height);
+			this.box.show();
+		},
+		beginDraw: function () {
+			
+		},
+		endDraw: function () {
+			
+		},
+		doLine: function () {
+			
+		},
+		/** 更新界面. */
+		update: function () {
+			
+		},
+		/** 改变尺寸 并且重新计算位置. */
+		resize: function () {
+			this.pos = this.view.offset();
+			this.box.css({
+				left: this.pos.left + 'px',
+				top: this.pos.top + 'px'
+			});
 		}
+	}
+	
+	/** 绘图数据. */
+	MT.data.DrawItem = function () {
+		
+	}
+	MT.data.DrawItem.prototype = {
+			// start X;
+			xs: 0,
+			// start Y;
+			ys: 0,
+			// end X;
+			xe: 0,
+			// end Y;
+			ye: 0,
+			z: 0,
+			width: 0,
+			height: 0,
+			visiable: false,
 	}
 	
 	/** 设置列表. */

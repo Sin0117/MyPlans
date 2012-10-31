@@ -15,5 +15,7 @@ a:hover {text-decoration: underline; color: #333;}
 .main－nav ul {list-style: none;}
 .main－nav li {float: left;}
 
-#main {background-color: #EFEFEF; -webkit-box-shadow: 4px 4px 4px #3A3A3A; -moz-box-shadow: 4px 4px 4px #3A3A3A; -o-box-shadow: 4px 4px 4px #3A3A3A; box-shadow: 4px 4px 4px #3A3A3A; }
+#main {background-color: #EFEFEF; }
+.shadow4 {-webkit-box-shadow: 4px 4px 4px #3A3A3A; -moz-box-shadow: 4px 4px 4px #3A3A3A; -o-box-shadow: 4px 4px 4px #3A3A3A; box-shadow: 4px 4px 4px #3A3A3A; }
+.shadow2 {-webkit-box-shadow: 2px 2px 2px #3A3A3A; -moz-box-shadow: 2px 2px 2px #3A3A3A; -o-box-shadow: 2px 2px 2px #3A3A3A; box-shadow: 2px 2px 2px #3A3A3A; }
 #main {}
