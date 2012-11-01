@@ -1,7 +1,11 @@
 
 var MT = MT || {};
+// 组建包
 MT.components = MT.components || {};
+// 绘图数据包
 MT.data = MT.data || {};
+// 绘图插件包
+MT.plugin = MT.plugin || {};
 
 (function () {
 	
@@ -74,12 +78,13 @@ MT.data = MT.data || {};
 		this.viewCtx = this.view.get(0).getContext('2d');
 		this.box = $('<canvas id="Sketchpad"></canvas>');
 		this.boxCtx = this.box.get(0).getContext('2d');
-		//修复chrome下光标样式的问题  
-		this.box.live('selectstart', function () {
-            return false;  
-        });
+		this.temp = $('<canvas id="brush"></canvas>');
+		this.tempCtx = this.temp.get(0).getContext('2d');
+		
 		this.history = [];
 		this.curDrawElem = null;
+		this.beginX = -1;
+		this.beginY = -1;
 		this.lastX = -1;
 		this.lastY = -1;
 		this._render();
@@ -88,40 +93,76 @@ MT.data = MT.data || {};
 	MT.components.Sketch.prototype = {
 		opt: {},
 		_render: function () {
-			this.opt.elem.append(this.view).append(this.box);
+			this.opt.elem.append(this.view).append(this.box).append(this.temp);
 			this.view.width(this.opt.width);
 			this.view.height(this.opt.height);
 			this.box.width(this.opt.width);
 			this.box.height(this.opt.height);
+			this.temp.width(this.opt.width);
+			this.temp.height(this.opt.height);
 			this.resize();
 		},
 		_initEvents: function () {
 			var me = this;
+			//修复chrome下光标样式的问题  
+			$('canvas').live('selectstart', function () {
+	            return false;  
+	        });
 			$(window).bind('onReadyDraw', function (evt, type) {
-				me.readyDraw();
+				me.beginDraw();
 			});
-			this.box.bind('click', function (evt) {
+			this.temp.bind('mousedown', doDrawStart);
+			
+			function doDrawStart(evt) {
+				var $this = $(this);
+				$this.bind({
+					mouseup: doDrawEnd,
+					mouseover: doDrawBreak,
+					mousemove: doDrawMove
+				});
+				me.beginX = me.pos.left - evt.clientX;
+				me.beginY = me.pos.top - evt.clientY;
+			}
+			function doDrawEnd(evt) {
+				me.draw();
+			}
+			function doDrawMove(evt) {
 				var curX = me.pos.left - evt.clientX, curY = me.pos.top - evt.clientY;
-				if (!!me.curDrawElem) {
-					
-				} else {
-				}
 				me.lastX = curX;
 				me.lastY = curY;
-			});
-		},
-		readyDraw: function () {
-			this.boxCtx.clearRect(0, 0, this.opt.width, this.opt.height);
-			this.box.show();
+			}
+			function doDrawBreak(evt) {
+				$this.unbind('mouseup');
+				$this.unbind('mouseover');
+				$this.unbind('mousemove');
+				me.endDraw();
+			}
 		},
 		beginDraw: function () {
-			
+			this.boxCtx.clearRect(0, 0, this.opt.width, this.opt.height);
+			this.tempCtx.clearRect(0, 0, this.opt.width, this.opt.height);
+			this.box.show();
+			this.temp.show();
 		},
 		endDraw: function () {
-			
+			this.box.hide();
+			this.temp.hide();
 		},
-		doLine: function () {
-			
+		draw: function (paths) {
+			var ctx = this.boxCtx;
+			ctx.save();
+			ctx.beginPath();
+			for (var path in paths) {
+				switch (path.type) {
+				case 0: break;
+				case 1: break;
+				case 2: break;
+				case 3: break;
+				case 4: break;
+				}
+			}
+			ctx.stroke();
+			ctx.resore();
 		},
 		/** 更新界面. */
 		update: function () {
@@ -130,10 +171,12 @@ MT.data = MT.data || {};
 		/** 改变尺寸 并且重新计算位置. */
 		resize: function () {
 			this.pos = this.view.offset();
-			this.box.css({
+			var styles = {
 				left: this.pos.left + 'px',
 				top: this.pos.top + 'px'
-			});
+			};
+			this.box.css(styles);
+			this.temp.css(styles);
 		}
 	}
 	
@@ -142,18 +185,30 @@ MT.data = MT.data || {};
 		
 	}
 	MT.data.DrawItem.prototype = {
-			// start X;
-			xs: 0,
-			// start Y;
-			ys: 0,
-			// end X;
-			xe: 0,
-			// end Y;
-			ye: 0,
-			z: 0,
-			width: 0,
-			height: 0,
-			visiable: false,
+		// start X;
+		xs: 0,
+		// start Y;
+		ys: 0,
+		// end X;
+		xe: 0,
+		// end Y;
+		ye: 0,
+		z: 0,
+		width: 0,
+		height: 0,
+		visiable: false,
+	}
+	MT.data.DRAW_TYPE = {
+		// 移动到目标点
+		0: 'moveTo',
+		// 绘制直线到目标点
+		1: 'lineTo',
+		// 以当前路径绘制贝塞尔曲线
+		2: 'quadraticCurveTo',
+		// 绘制贝塞尔二次曲线
+		3: 'bezierCurveTo',
+		// 对当前路径进行填充
+		4: 'fill'
 	}
 	
 	/** 设置列表. */
