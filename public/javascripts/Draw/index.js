@@ -101,12 +101,13 @@ MT.data = MT.data || {};
 				me.readyDraw();
 			});
 			this.box.bind('click', function (evt) {
+				var curX = me.pos.left - evt.clientX, curY = me.pos.top - evt.clientY;
 				if (!!me.curDrawElem) {
 					
 				} else {
 				}
-				me.lastX = me.pos.left - evt.clientX;
-				me.lastY = me.pos.top - evt.clientY;
+				me.lastX = curX;
+				me.lastY = curY;
 			});
 		},
 		readyDraw: function () {
