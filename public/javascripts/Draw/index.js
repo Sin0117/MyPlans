@@ -9,6 +9,16 @@ MT.utils = MT.utils || {};
 MT.plugin = MT.plugin || {};
 
 (function () {
+	// 全部的操作类集合.
+	var operationsMap = {};
+	$(function () {
+		// 操作插件装填.
+		var plugin = MT.plugin;
+		for (var fn in plugin) {
+			var fnObj = new plugin[fn]();
+			operationsMap[fnObj.actoin] = fnObj;
+		}
+	});
 	
 	/** 操作列表. */
 	MT.components.Operation = function (options) {
@@ -75,28 +85,31 @@ MT.plugin = MT.plugin || {};
 	MT.components.Sketch = function (options) {
 		this.opt = $.extend({}, this.opt, options);
 		
+		// 底版处理层
 		this.view = $('<canvas id="DisplayCard" class="shadow2"></canvas>');
 		this.viewCtx = this.view.get(0).getContext('2d');
+		// 呈像层
 		this.box = $('<canvas id="Sketchpad"></canvas>');
 		this.boxCtx = this.box.get(0).getContext('2d');
+		// 渲染临时层
 		this.temp = $('<canvas id="brush"></canvas>');
 		this.tempCtx = this.temp.get(0).getContext('2d');
 		
+		// 呈祥的历史记录, 这个可以考虑本地保存.
 		this.history = [];
-		this.curDrawElem = null;
+		this.paths = [];
 		this._render();
 		this._initEvents();
 	}
 	MT.components.Sketch.prototype = {
 		opt: {},
 		_render: function () {
+			var w = this.opt.width, h = this.opt.height, 
+				attObj = {width: w, height: h}, cssObj = {width: w + 'px', height: h + 'px'};
 			this.opt.elem.append(this.view).append(this.box).append(this.temp);
-			this.view.width(this.opt.width);
-			this.view.height(this.opt.height);
-			this.box.width(this.opt.width);
-			this.box.height(this.opt.height);
-			this.temp.width(this.opt.width);
-			this.temp.height(this.opt.height);
+			this.view.attr(attObj).css(cssObj);
+			this.box.attr(attObj).css(cssObj);
+			this.temp.attr(attObj).css(cssObj);
 			this.resize();
 		},
 		_initEvents: function () {
@@ -107,6 +120,8 @@ MT.plugin = MT.plugin || {};
 	        });
 			$(window).bind('onReadyDraw', function (evt, type) {
 				me.beginDraw();
+			}).bind('resize', function (evt) {
+				me.resize();
 			});
 			this.temp.bind('mousedown', doDrawStart);
 			
@@ -114,12 +129,13 @@ MT.plugin = MT.plugin || {};
 				var $this = $(this);
 				$this.bind({
 					mouseup: doDrawEnd,
-					mouseover: doDrawBreak,
+					mouseout: doDrawBreak,
 					mousemove: doDrawMove
 				});
+				me.tempVer = 0;
 				me.tempPath = [{
 					type: 11,
-					ver: 0
+					ver: 1
 				},{
 					type: 9,
 					color: '#' + $('#colorIpt').val()
@@ -133,7 +149,7 @@ MT.plugin = MT.plugin || {};
 				}];
 			}
 			function doDrawEnd(evt) {
-				me.draw();
+				me.draw(me.boxCtx, me.tempPath);
 				doDrawBreak();
 			}
 			function doDrawMove(evt) {
@@ -154,35 +170,15 @@ MT.plugin = MT.plugin || {};
 				$this.unbind('mousemove');
 				me.tempPath = null;
 				me.tempVer = -1;
+				me.tempCtx.clearRect(0, 0, width, height);
 				me.endDraw();
 			}
 			// 临时画板的桢渲染，暂时定20fps/s
 			setInterval(function () {
-			// setTimeout(function () {
+				if (!me.tempPath || me.tempVer == -1 || me.tempVer == me.tempPath[0].ver) return;
 				var ctx = me.tempCtx, paths = me.tempPath;
-				if (!paths || me.tempVer == -1 || me.tempVer == paths[0].ver) return;
 				ctx.clearRect(0, 0, width, height);
-				ctx.save();
-				ctx.beginPath();
-				console.log(' --------------------------------------------- start --------------------------------------------- ');
-				for (var index in paths) {
-					var path = paths[index];
-					switch (path.type) {
-						case 0: console.log('move to : ' + path.x + ' : ' + path.y), ctx.moveTo(path.x, path.y); break;
-						case 1: console.log('line to : ' + path.x + ' : ' + path.y), ctx.lineTo(path.x, path.y); break;
-						case 2: ctx.quadraticCurveTo(path.cx, path.cy, path.x, path.y); break;
-						case 3: ctx.bezierCurveTo(path.bx, path.by, path.cx, path.cy, path.x, path.y); break;
-						case 7: ctx.fill(); break;
-						
-						case 8: ctx.fillStyle = path.color; break;
-						case 9: ctx.strokeStyle = path.color; break;
-						case 10: ctx.lineWidth = path.size; break;
-					}
-				}
-				console.log(' --------------------------------------------- end --------------------------------------------- ');
-				ctx.stroke();
-				ctx.closePath();
-				ctx.restore();
+				me.draw(ctx, paths);
 				me.tempVer = paths[0].ver;
 			}, 45);
 		},
@@ -195,19 +191,25 @@ MT.plugin = MT.plugin || {};
 		endDraw: function () {
 			
 		},
-		draw: function (paths) {
-			var ctx = this.boxCtx;
+		draw: function (ctx, paths) {
 			ctx.save();
+			ctx.scale = 1;
+			ctx.translate(0, 0);
 			ctx.beginPath();
-			for (var path in paths) {
+			for (var index in paths) {
+				var path = paths[index];
 				switch (path.type) {
-				case 0: break;
-				case 1: break;
-				case 2: break;
-				case 3: break;
-				case 4: break;
+					case 0: ctx.moveTo(path.x, path.y); break;
+					case 1: ctx.lineTo(path.x, path.y); break;
+					case 2: ctx.quadraticCurveTo(path.cx, path.cy, path.x, path.y); break;
+					case 3: ctx.bezierCurveTo(path.bx, path.by, path.cx, path.cy, path.x, path.y); break;
+					case 7: ctx.fill(); break;
+					case 8: ctx.fillStyle = path.color; break;
+					case 9: ctx.strokeStyle = path.color; break;
+					case 10: ctx.lineWidth = path.size; break;
 				}
 			}
+			ctx.closePath();
 			ctx.stroke();
 			ctx.restore();
 		},
@@ -227,49 +229,37 @@ MT.plugin = MT.plugin || {};
 		}
 	}
 	
-	/** 绘图数据. */
-	MT.data.DrawItem = function () {
-		
+	/** 
+	 * 绘图数据. 
+	 * 格式: action|key:val,key:val ... ,key:val
+	 */
+	MT.data.DrawItem = function (type, paths) {
+		this.type = type;
+		this.paths = paths;
+		this.toString = function () {
+			var paths = this.paths;
+			var str = [];
+			for (var i = 0, path; path = paths[i]; i ++) {
+				var s = [];
+				for (var key in path)
+					s.push(key + ':' + path[key]);
+				str.push(s.join(','));
+			}
+			return this.type + '|' + str.join('#');
+		}
 	}
-	MT.data.DrawItem.prototype = {
-		// start X;
-		xs: 0,
-		// start Y;
-		ys: 0,
-		// end X;
-		xe: 0,
-		// end Y;
-		ye: 0,
-		z: 0,
-		width: 0,
-		height: 0,
-		visiable: false,
-	}
-	MT.data.DRAW_TYPE = {
+	// 这个是绘图渲染时的基本处理类型.
+	MT.data.PLUGIN_DRAW_TYPE = {
 		// 移动到目标点
 		0: 'moveTo',
-		// 绘制直线到目标点
-		1: 'lineTo',
-		// 以当前路径绘制贝塞尔曲线
-		2: 'quadraticCurveTo',
-		// 绘制贝塞尔二次曲线
-		3: 'bezierCurveTo',
-		// 绘制矩形
-		4: 'rect',
-		// 绘制文字
-		5: 'text',
-		// 绘制椭圆
-		6: 'arc',
-		// 对当前路径进行填充
-		7: 'fill',
 		// 填充样式变更
-		8: 'fillStyle',
+		1: 'fillStyle',
 		// 线条样式变更
-		9: 'strokeStyle',
+		2: 'strokeStyle',
 		// 设置线条宽度
-		10: 'lineWidth',
+		3: 'lineWidth',
 		// 绘制到版本
-		11: 'version'
+		4: 'version'
 	}
 	
 	/** 设置列表. */
