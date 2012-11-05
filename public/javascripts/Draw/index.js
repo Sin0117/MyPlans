@@ -4,6 +4,7 @@ var MT = MT || {};
 MT.components = MT.components || {};
 // 绘图数据包
 MT.data = MT.data || {};
+MT.utils = MT.utils || {};
 // 绘图插件包
 MT.plugin = MT.plugin || {};
 
@@ -83,10 +84,6 @@ MT.plugin = MT.plugin || {};
 		
 		this.history = [];
 		this.curDrawElem = null;
-		this.beginX = -1;
-		this.beginY = -1;
-		this.lastX = -1;
-		this.lastY = -1;
 		this._render();
 		this._initEvents();
 	}
@@ -103,7 +100,7 @@ MT.plugin = MT.plugin || {};
 			this.resize();
 		},
 		_initEvents: function () {
-			var me = this;
+			var me = this, width = this.opt.width, height = this.opt.height;
 			//修复chrome下光标样式的问题  
 			$('canvas').live('selectstart', function () {
 	            return false;  
@@ -120,23 +117,74 @@ MT.plugin = MT.plugin || {};
 					mouseover: doDrawBreak,
 					mousemove: doDrawMove
 				});
-				me.beginX = me.pos.left - evt.clientX;
-				me.beginY = me.pos.top - evt.clientY;
+				me.tempPath = [{
+					type: 11,
+					ver: 0
+				},{
+					type: 9,
+					color: '#' + $('#colorIpt').val()
+				}, {
+					type: 10,
+					size: $('#sizeIpt').val()
+				}, {
+					type: 0,
+					x: evt.clientX - me.pos.left,
+					y: evt.clientY - me.pos.top
+				}];
 			}
 			function doDrawEnd(evt) {
 				me.draw();
+				doDrawBreak();
 			}
 			function doDrawMove(evt) {
-				var curX = me.pos.left - evt.clientX, curY = me.pos.top - evt.clientY;
-				me.lastX = curX;
-				me.lastY = curY;
+				var curX = evt.clientX - me.pos.left, curY = evt.clientY - me.pos.top;
+				if (!!me.tempPath && (curX != me.lastX || curY != me.lastY)) {
+					me.tempPath[0].ver = me.tempPath[0].ver + 1; 
+					me.tempPath[4] = {
+						type: 1, x: curX, y: curY
+					};
+					me.lastX = curX;
+					me.lastY = curY;
+				}
 			}
 			function doDrawBreak(evt) {
+				var $this = $(this);
 				$this.unbind('mouseup');
 				$this.unbind('mouseover');
 				$this.unbind('mousemove');
+				me.tempPath = null;
+				me.tempVer = -1;
 				me.endDraw();
 			}
+			// 临时画板的桢渲染，暂时定20fps/s
+			setInterval(function () {
+			// setTimeout(function () {
+				var ctx = me.tempCtx, paths = me.tempPath;
+				if (!paths || me.tempVer == -1 || me.tempVer == paths[0].ver) return;
+				ctx.clearRect(0, 0, width, height);
+				ctx.save();
+				ctx.beginPath();
+				console.log(' --------------------------------------------- start --------------------------------------------- ');
+				for (var index in paths) {
+					var path = paths[index];
+					switch (path.type) {
+						case 0: console.log('move to : ' + path.x + ' : ' + path.y), ctx.moveTo(path.x, path.y); break;
+						case 1: console.log('line to : ' + path.x + ' : ' + path.y), ctx.lineTo(path.x, path.y); break;
+						case 2: ctx.quadraticCurveTo(path.cx, path.cy, path.x, path.y); break;
+						case 3: ctx.bezierCurveTo(path.bx, path.by, path.cx, path.cy, path.x, path.y); break;
+						case 7: ctx.fill(); break;
+						
+						case 8: ctx.fillStyle = path.color; break;
+						case 9: ctx.strokeStyle = path.color; break;
+						case 10: ctx.lineWidth = path.size; break;
+					}
+				}
+				console.log(' --------------------------------------------- end --------------------------------------------- ');
+				ctx.stroke();
+				ctx.closePath();
+				ctx.restore();
+				me.tempVer = paths[0].ver;
+			}, 45);
 		},
 		beginDraw: function () {
 			this.boxCtx.clearRect(0, 0, this.opt.width, this.opt.height);
@@ -145,8 +193,7 @@ MT.plugin = MT.plugin || {};
 			this.temp.show();
 		},
 		endDraw: function () {
-			this.box.hide();
-			this.temp.hide();
+			
 		},
 		draw: function (paths) {
 			var ctx = this.boxCtx;
@@ -162,7 +209,7 @@ MT.plugin = MT.plugin || {};
 				}
 			}
 			ctx.stroke();
-			ctx.resore();
+			ctx.restore();
 		},
 		/** 更新界面. */
 		update: function () {
@@ -207,8 +254,22 @@ MT.plugin = MT.plugin || {};
 		2: 'quadraticCurveTo',
 		// 绘制贝塞尔二次曲线
 		3: 'bezierCurveTo',
+		// 绘制矩形
+		4: 'rect',
+		// 绘制文字
+		5: 'text',
+		// 绘制椭圆
+		6: 'arc',
 		// 对当前路径进行填充
-		4: 'fill'
+		7: 'fill',
+		// 填充样式变更
+		8: 'fillStyle',
+		// 线条样式变更
+		9: 'strokeStyle',
+		// 设置线条宽度
+		10: 'lineWidth',
+		// 绘制到版本
+		11: 'version'
 	}
 	
 	/** 设置列表. */
@@ -223,7 +284,7 @@ MT.plugin = MT.plugin || {};
 			size: 56
 		},
 		_render: function () {
-			var html = ['<label>颜色:<input id="colorIpt" type="text" value="0" min="0" max="0xFFFFFF" step="1" /></label>'];
+			var html = ['<label>颜色:<input id="colorIpt" type="text" value="000000" /></label>'];
 			html.push('<label>透明度:<input id="aliphiIpt" type="range" value="1" min="0" max="1" step="0.05" /></label>');
 			html.push('<label>线条宽:<input id="sizeIpt" class="ipt-32" type="number" value="1" min="1" max="20" step="1" /></label>');
 			html.push('<br>坐标参数:');
@@ -261,4 +322,5 @@ MT.plugin = MT.plugin || {};
 			}
 		}
 	}
+	
 })();
