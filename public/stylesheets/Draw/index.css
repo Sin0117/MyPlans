@@ -8,15 +8,15 @@
 #operation #opt_LINE {background-position: 0px 0px;}
 #operation #opt_LINE:hover {background-position: 0px -16px;}
 #operation #opt_LINE.on {background-position: 0px -32px;}
-#operation #opt_RECTANGLE {background-position: -16px 0px;}
-#operation #opt_RECTANGLE:hover {background-position: -16px -16px;}
-#operation #opt_RECTANGLE.on {background-position: -16px -32px;}
-#operation #opt_ARC {background-position: -32px 0px;}
-#operation #opt_ARC:hover {background-position: -32px -16px;}
-#operation #opt_ARC.on {background-position: -32px -32px;}
-#operation #opt_OVAL {background-position: -48px 0px;}
-#operation #opt_OVAL:hover {background-position: -48px -16px;}
-#operation #opt_OVAL.on {background-position: -48px -32px;}
+#operation #opt_ARC {background-position: -16px 0px;}
+#operation #opt_ARC:hover {background-position: -16px -16px;}
+#operation #opt_ARC.on {background-position: -16px -32px;}
+#operation #opt_OVAL {background-position: -32px 0px;}
+#operation #opt_OVAL:hover {background-position: -32px -16px;}
+#operation #opt_OVAL.on {background-position: -32px -32px;}
+#operation #opt_RECTANGLE {background-position: -48px 0px;}
+#operation #opt_RECTANGLE:hover {background-position: -48px -16px;}
+#operation #opt_RECTANGLE.on {background-position: -48px -32px;}
 #operation #opt_TEXT {background-position: -64px 0px;}
 #operation #opt_TEXT:hover {background-position: -64px -16px;}
 #operation #opt_TEXT.on {background-position: -64px -32px;}
@@ -31,7 +31,7 @@
 #operation #opt_NEW:hover {background-position: -112px -16px;}
 #operation #opt_NEW.on {background-position: -112px -32px; border: 1px solid #EFEFEF; }
 #operation #opt_LAMP {background-position: -160px 0px;}
-#operation #opt_LAMP.on {background-position: -176px 0px;}
+#operation #opt_LAMP.off {background-position: -176px 0px; border: 1px solid #EFEFEF; }
 #operation #opt_BACK {background-position: -128px 0px;}
 #operation #opt_BACK:hover {background-position: -128px -16px;}
 #operation #opt_BACK.on {background-position: -128px -32px; border: 1px solid #EFEFEF; }
@@ -40,11 +40,12 @@
 #operation #opt_FORWARD.on {background-position: -144px -32px; border: 1px solid #EFEFEF; }
 
 #stage {padding: 32px 0 60px; text-align: center; }
-#brush { cursor: default; border: 1px solid #333; position: absolute; z-index: 6; overflow: hidden; display: none; }
-#Sketchpad { cursor: default; border: 1px solid #333; position: absolute; z-index: 4; overflow: hidden; display: none; }
+#brush { cursor: default; border: 1px solid #333; position: absolute; z-index: 6; overflow: hidden; }
+#Sketchpad { cursor: default; border: 1px solid #333; position: absolute; z-index: 4; overflow: hidden; }
 #DisplayCard { cursor: default; background: #FFF; border: 1px solid #333; overflow: hidden; }
 
 #setting { text-align: center; height: 56px; line-height: 28px; border-top: 1px solid #777; position: fixed; bottom: 0px; width: 100%; background: #EFEFEF; z-index: 8; }
 #setting label {margin: 0 4px; }
 #setting input {width: 48px; }
+#setting input.ipt-32 {width: 32px;}
 

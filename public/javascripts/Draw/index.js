@@ -16,14 +16,15 @@ MT.plugin = MT.plugin || {};
 		var plugin = MT.plugin;
 		for (var fn in plugin) {
 			var fnObj = new plugin[fn]();
-			operationsMap[fnObj.actoin] = fnObj;
+			operationsMap[fnObj.action] = fnObj;
 		}
 	});
 	
 	/** 操作列表. */
 	MT.components.Operation = function (options) {
 		 this.opt = $.extend({}, this.opt, options);
-		 
+		 // 当前的操作类型
+		 this.curOperaion = null;
 		 this._render();
 		 this._initEvents();
 	}
@@ -55,8 +56,13 @@ MT.plugin = MT.plugin || {};
 		_initEvents: function () {
 			var me = this;
 			this.opt.elem.find('a').live('click', function () {
-				me.opt.elem.find('a').removeClass('on');
-				this.className = 'on';
+				var $this = $(this), key = $this.data('operation');
+				me.curOperaion = operationsMap[key];
+				if (me.curOperaion.type == 0) {
+					me.opt.elem.find('a').removeClass('on');
+					this.className = 'on';
+				}
+				me.curOperaion.ready(this);
 				$(window).trigger('onReadyDraw', [$(this).data('operation')]);
 			});
 			this.opt.scroll = $(window).scrollTop();
@@ -98,6 +104,8 @@ MT.plugin = MT.plugin || {};
 		// 呈祥的历史记录, 这个可以考虑本地保存.
 		this.history = [];
 		this.paths = [];
+		// 当前的操作类型
+		this.curOperaion = null;
 		this._render();
 		this._initEvents();
 	}
@@ -113,17 +121,19 @@ MT.plugin = MT.plugin || {};
 			this.resize();
 		},
 		_initEvents: function () {
-			var me = this, width = this.opt.width, height = this.opt.height;
+			var me = this, width = this.opt.width, height = this.opt.height, win = $(window);
 			//修复chrome下光标样式的问题  
 			$('canvas').live('selectstart', function () {
 	            return false;  
 	        });
 			$(window).bind('onReadyDraw', function (evt, type) {
+				me.curOperaion = operationsMap[type];
 				me.beginDraw();
 			}).bind('resize', function (evt) {
 				me.resize();
 			});
 			this.temp.bind('mousedown', doDrawStart);
+			this.temp.bind('mousemove', doMouseMove);
 			
 			function doDrawStart(evt) {
 				var $this = $(this);
@@ -134,18 +144,24 @@ MT.plugin = MT.plugin || {};
 				});
 				me.tempVer = 0;
 				me.tempPath = [{
-					type: 11,
+					type: 4,
 					ver: 1
-				},{
-					type: 9,
+				}, {
+					type: 1,
+					color: '#' + $('#fillIpt').val()
+				}, {
+					type: 2,
 					color: '#' + $('#colorIpt').val()
 				}, {
-					type: 10,
+					type: 3,
 					size: $('#sizeIpt').val()
 				}, {
+					type: 6,
+					alpha: $('#aliphaIpt').val()
+				}, {
 					type: 0,
-					x: evt.clientX - me.pos.left,
-					y: evt.clientY - me.pos.top
+					x: win.scrollLeft() + evt.clientX - me.pos.left,
+					y: win.scrollTop() + evt.clientY - me.pos.top
 				}];
 			}
 			function doDrawEnd(evt) {
@@ -153,11 +169,12 @@ MT.plugin = MT.plugin || {};
 				doDrawBreak();
 			}
 			function doDrawMove(evt) {
-				var curX = evt.clientX - me.pos.left, curY = evt.clientY - me.pos.top;
+				var curX = win.scrollLeft() + evt.clientX - me.pos.left, 
+					curY = win.scrollTop() + evt.clientY - me.pos.top;
 				if (!!me.tempPath && (curX != me.lastX || curY != me.lastY)) {
 					me.tempPath[0].ver = me.tempPath[0].ver + 1; 
-					me.tempPath[4] = {
-						type: 1, x: curX, y: curY
+					me.tempPath[6] = {
+						type: 5, x: curX, y: curY
 					};
 					me.lastX = curX;
 					me.lastY = curY;
@@ -167,15 +184,23 @@ MT.plugin = MT.plugin || {};
 				var $this = $(this);
 				$this.unbind('mouseup');
 				$this.unbind('mouseover');
-				$this.unbind('mousemove');
+				$this.unbind('mousemove', doDrawMove);
 				me.tempPath = null;
 				me.tempVer = -1;
 				me.tempCtx.clearRect(0, 0, width, height);
 				me.endDraw();
 			}
+			// 计算鼠标坐标
+			function doMouseMove(evt) {
+				me.mouseX = win.scrollLeft() + evt.clientX - me.pos.left;
+				me.mouseY = win.scrollTop() + evt.clientY - me.pos.top;
+			}
 			// 临时画板的桢渲染，暂时定20fps/s
 			setInterval(function () {
-				if (!me.tempPath || me.tempVer == -1 || me.tempVer == me.tempPath[0].ver) return;
+				$('#posXIpt').val(me.mouseX);
+				$('#posYIpt').val(me.mouseY);
+				
+				if (!me.tempPath || me.tempVer == -1 || me.tempVer == me.tempPath[0].ver || me.tempPath.length < 7) return;
 				var ctx = me.tempCtx, paths = me.tempPath;
 				ctx.clearRect(0, 0, width, height);
 				me.draw(ctx, paths);
@@ -183,32 +208,15 @@ MT.plugin = MT.plugin || {};
 			}, 45);
 		},
 		beginDraw: function () {
-			this.boxCtx.clearRect(0, 0, this.opt.width, this.opt.height);
-			this.tempCtx.clearRect(0, 0, this.opt.width, this.opt.height);
-			this.box.show();
-			this.temp.show();
+			
 		},
 		endDraw: function () {
 			
 		},
 		draw: function (ctx, paths) {
 			ctx.save();
-			ctx.scale = 1;
-			ctx.translate(0, 0);
 			ctx.beginPath();
-			for (var index in paths) {
-				var path = paths[index];
-				switch (path.type) {
-					case 0: ctx.moveTo(path.x, path.y); break;
-					case 1: ctx.lineTo(path.x, path.y); break;
-					case 2: ctx.quadraticCurveTo(path.cx, path.cy, path.x, path.y); break;
-					case 3: ctx.bezierCurveTo(path.bx, path.by, path.cx, path.cy, path.x, path.y); break;
-					case 7: ctx.fill(); break;
-					case 8: ctx.fillStyle = path.color; break;
-					case 9: ctx.strokeStyle = path.color; break;
-					case 10: ctx.lineWidth = path.size; break;
-				}
-			}
+			this.curOperaion.render(ctx, paths);
 			ctx.closePath();
 			ctx.stroke();
 			ctx.restore();
@@ -274,13 +282,13 @@ MT.plugin = MT.plugin || {};
 			size: 56
 		},
 		_render: function () {
-			var html = ['<label>颜色:<input id="colorIpt" type="text" value="000000" /></label>'];
-			html.push('<label>透明度:<input id="aliphiIpt" type="range" value="1" min="0" max="1" step="0.05" /></label>');
-			html.push('<label>线条宽:<input id="sizeIpt" class="ipt-32" type="number" value="1" min="1" max="20" step="1" /></label>');
-			html.push('<br>坐标参数:');
-			html.push('<label>X:<input id="posXIpt" class="ipt-32" type="number" min="1" step="1" /></label>');
-			html.push('<label>Y:<input id="posYIpt" class="ipt-32" type="number" min="1" step="1" /></label>');
-			html.push('<label>Z:<input id="posZIpt" class="ipt-32" type="number" min="1" step="1" /></label>');
+			var html = ['<label>线颜色:<input id="colorIpt" type="text" value="000000" /></label>'];
+			html.push('<label>透明度:<input id="aliphaIpt" type="range" value="1" min="0" max="1" step="0.05" /></label>');
+			html.push('<label>线条宽:<input id="sizeIpt" class="ipt-32" type="number" value="1" min="1" max="20" step="1" /></label><br>');
+			html.push('<label>背景色:<input id="fillIpt" type="text" value="FFFFFF" /></label>');
+			html.push('坐标参数:<label>X:<input id="posXIpt" class="ipt-32" type="text" /></label>');
+			html.push('<label>Y:<input id="posYIpt" class="ipt-32" type="text" /></label>');
+			// html.push('<label>Z:<input id="posZIpt" class="ipt-32" type="text" /></label>');
 			this.opt.elem.append(html.join(''));
 		},
 		_initEvents: function () {
@@ -288,16 +296,15 @@ MT.plugin = MT.plugin || {};
 			me.opt.height = $(window).height();
 			me.opt.top = me.opt.foot.offset().top;
 			me.opt.scroll = $(window).scrollTop();
-			me.opt.bottom = me.opt.foot.get(0).offsetHeight;
 			
 			$(window).bind('scroll', function () {
+				me.opt.top = me.opt.foot.offset().top;
 				me.opt.scroll = $(window).scrollTop();
 				me.resize();
 			});
 			$(window).bind('resize', function () {
 				me.opt.height = $(window).height();
 				me.opt.top = me.opt.foot.offset().top;
-				me.opt.bottom = me.opt.foot.get(0).offsetHeight;
 				me.resize();
 			});
 			this.resize();
@@ -306,7 +313,11 @@ MT.plugin = MT.plugin || {};
 			var winHeight = this.opt.height, scrollTop = this.opt.scroll, top = this.opt.top,
 				offset = winHeight + scrollTop - top, height = this.opt.size;
 			if (offset > 0) {
-				this.opt.elem.css('top', winHeight - height - offset + 'px');
+				if (top  != scrollTop) {
+					this.opt.elem.css('top', winHeight - height - offset + 'px');
+				} else {
+					this.opt.elem.css('top', winHeight - height + 'px');
+				}
 			} else {
 				this.opt.elem.css('top', winHeight - height + 'px');
 			}
