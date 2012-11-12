@@ -4,7 +4,7 @@
 
 LINE=绘制直线
 RECTANGLE=绘制矩形
-ARC=绘制弧线
+LINES=绘制路径
 OVAL=绘制椭圆形
 TEXT=绘制文字
 NEW=新建
@@ -13,3 +13,7 @@ OFF=关灯
 ON=恢复
 BACK=后退
 FORWARD=前进
+
+
+# 插件的国际化
+plugin.text.enter=请输入文字内容

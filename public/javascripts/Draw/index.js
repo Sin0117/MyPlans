@@ -214,6 +214,7 @@ MT.plugin = MT.plugin || {};
 			
 		},
 		draw: function (ctx, paths) {
+			if (!this.curOperaion) return;
 			ctx.save();
 			ctx.beginPath();
 			this.curOperaion.render(ctx, paths);

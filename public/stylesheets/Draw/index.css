@@ -8,9 +8,9 @@
 #operation #opt_LINE {background-position: 0px 0px;}
 #operation #opt_LINE:hover {background-position: 0px -16px;}
 #operation #opt_LINE.on {background-position: 0px -32px;}
-#operation #opt_ARC {background-position: -16px 0px;}
-#operation #opt_ARC:hover {background-position: -16px -16px;}
-#operation #opt_ARC.on {background-position: -16px -32px;}
+#operation #opt_LINES {background-position: -16px 0px;}
+#operation #opt_LINES:hover {background-position: -16px -16px;}
+#operation #opt_LINES.on {background-position: -16px -32px;}
 #operation #opt_OVAL {background-position: -32px 0px;}
 #operation #opt_OVAL:hover {background-position: -32px -16px;}
 #operation #opt_OVAL.on {background-position: -32px -32px;}

@@ -10,8 +10,8 @@ public enum DrawType {
 	LINE,
 	/** 绘制矩形 */
 	RECTANGLE,
-	/** 绘制弧线 */
-	ARC,
+	/** 绘制多条线段 */
+	LINES,
 	/** 绘制椭圆形 */
 	OVAL,
 	/** 绘制文字 */
