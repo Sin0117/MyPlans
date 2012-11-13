@@ -28,59 +28,80 @@ MT.data = MT.data || {};
 	 *  type: 		插件类型, 0: 绘图插件, 1: 操作性插件;
 	 *  ready:		当前操作图标被点击后插件被激活的处理;
 	 *  draw:		绘制处理, 会传递来绘图板和路径.
-	 *  end:		当前插件被关闭时的处理
+	 *  begin:		绘制开始
+	 *  finish:		当前绘制结束时的处理
+	 *  end:			当前插件被关闭时的处理
+	 *  resize:		窗口尺寸发生变化时候的处理
 	 */
 	/** 直线插件. */
 	MT.plugin.Line = function () {
 		this.action = 'LINE';
 		this.type = 0;
-		this.ready = function (icon) {};
-		this.end = function () {};
-		this.render = function (ctx, paths) {
-			for (var index in paths) {
-				var path = paths[index];
-				switch (path.type) {
-					case 0: ctx.moveTo(path.x, path.y); break;
-					case 1: ctx.fillStyle = path.color; break;
-					case 2: ctx.strokeStyle = path.color; break;
-					case 3: ctx.lineWidth = path.size; break;
-					case 5: ctx.lineTo(path.x, path.y); break;
-					case 6: ctx.globalAlpha = path.alpha; break;
-				}
-			}
-		}
-	}
-	/** 矩形插件. */
-	MT.plugin.Rectangle = function () {
-		this.action = 'RECTANGLE';
-		this.type = 0;
-		this.ready = function (icon) {};
-		this.end = function () {};
+		this.size = 1;
+		this.ready = function (icon, header) {
+			$('#sizeIpt').val(this.size);
+		};
 		this.render = function (ctx, paths) {
 			var beginPos, sizePos;
 			for (var index in paths) {
 				var path = paths[index];
 				switch (path.type) {
 					case 0: beginPos = path; break;
-					case 1: ctx.fillStyle = path.color; break;
-					case 2: ctx.strokeStyle = path.color; break;
-					case 3: ctx.lineWidth = path.size; break;
+					case 1: this.fill = path.color; break;
+					case 2: this.color = path.color; break;
+					case 3: this.size = path.size; break;
 					case 5: sizePos = path; break;
-					case 6: ctx.globalAlpha = path.alpha; break;
+					case 6: this.alpha = path.alpha; break;
 				}
 			}
+			ctx.fillStyle = this.fill;
+			ctx.strokeStyle = this.color;
+			ctx.lineWidth = this.size;
+			ctx.globalAlpha = this.alpha;
+			ctx.moveTo(beginPos.x, beginPos.y);
+			ctx.lineTo(sizePos.x, sizePos.y);
+		}
+	}
+	/** 矩形插件. */
+	MT.plugin.Rectangle = function () {
+		this.action = 'RECTANGLE';
+		this.type = 0;
+		this.size = 1;
+		this.ready = function (icon, header) {
+			$('#sizeIpt').val(this.size);
+		};
+		this.render = function (ctx, paths) {
+			var beginPos, sizePos;
+			for (var index in paths) {
+				var path = paths[index];
+				switch (path.type) {
+					case 0: beginPos = path; break;
+					case 1: this.fill = path.color; break;
+					case 2: this.color = path.color; break;
+					case 3: this.size = path.size; break;
+					case 5: sizePos = path; break;
+					case 6: this.alpha = path.alpha; break;
+				}
+			}
+			ctx.fillStyle = this.fill;
+			ctx.strokeStyle = this.color;
+			ctx.lineWidth = this.size;
+			ctx.globalAlpha = this.alpha;
 			ctx.rect(beginPos.x, beginPos.y, sizePos.x - beginPos.x, sizePos.y - beginPos.y);
 			ctx.fill();
 		}
 	}
-	/** 弧线插件. */
+	/** 折线插件. */
 	MT.plugin.Lines = function () {
 		this.action = 'LINES';
 		this.type = 0;
 		this.lastX = -1;
 		this.lastY = -1;
-		this.ready = function (icon) {};
-		this.end = function () {
+		this.size = 1;
+		this.ready = function (icon, header) {
+			$('#sizeIpt').val(this.size);
+		};
+		this.finish = function () {
 			this.lastX = -1;
 			this.lastY = -1;
 		};
@@ -91,12 +112,16 @@ MT.data = MT.data || {};
 					var path = paths[index];
 					switch (path.type) {
 						case 0: beginPos = path; break;
-						case 1: ctx.fillStyle = path.color; break;
-						case 2: ctx.strokeStyle = path.color; break;
-						case 3: ctx.lineWidth = path.size; break;
-						case 6: ctx.globalAlpha = path.alpha; break;
+						case 1: this.fill = path.color; break;
+						case 2: this.color = path.color; break;
+						case 3: this.size = path.size; break;
+						case 6: this.alpha = path.alpha; break;
 					}
 				}
+				ctx.fillStyle = this.fill;
+				ctx.strokeStyle = this.color;
+				ctx.lineWidth = this.size;
+				ctx.globalAlpha = this.alpha;
 				if (this.lastX != -1 && this.lastY != -1) {
 					ctx.moveTo(this.lastX, this.lastY);
 					ctx.lineTo(beginPos.x, beginPos.y);
@@ -110,21 +135,27 @@ MT.data = MT.data || {};
 	MT.plugin.Oval = function () {
 		this.action = 'OVAL';
 		this.type = 0;
-		this.ready = function (icon) {};
-		this.end = function () {};
+		this.size = 1;
+		this.ready = function (icon, header) {
+			$('#sizeIpt').val(this.size);
+		};
 		this.render = function (ctx, paths) {
 			var beginPos, sizePos, centerX, centerY;
 			for (var index in paths) {
 				var path = paths[index];
 				switch (path.type) {
 					case 0: beginPos = path; break;
-					case 1: ctx.fillStyle = path.color; break;
-					case 2: ctx.strokeStyle = path.color; break;
-					case 3: ctx.lineWidth = path.size; break;
+					case 1: this.fill = path.color; break;
+					case 2: this.color = path.color; break;
+					case 3: this.size = path.size; break;
 					case 5: sizePos = path; break;
-					case 6: ctx.globalAlpha = path.alpha; break;
+					case 6: this.alpha = path.alpha; break;
 				}
 			}
+			ctx.fillStyle = this.fill;
+			ctx.strokeStyle = this.color;
+			ctx.lineWidth = this.size;
+			ctx.globalAlpha = this.alpha;
 			centerX = sizePos.x - beginPos.x >> 1;
 			centerY = sizePos.y - beginPos.y >> 1;
 			ctx.bezierCurveTo(beginPos.x, beginPos.y + centerY, 
@@ -147,40 +178,65 @@ MT.data = MT.data || {};
 		this.action = 'TEXT';
 		this.type = 0;
 		this.size = 12;
+		this.text = '';
+		this.index = 6;
 		this.box = $('<input type="text" class="plugin-TEXT-ipt" placeholder="'
 				+ i18n('plugin.text.enter') + 
 				'">').appendTo(document.body);
-		this.ready = function (icon) {
+		this.ready = function (icon, header) {
 			$('#sizeIpt').val(this.size);
+			$('#fillIpt').attr('disabled', true);
 		};
-		this.render = function (ctx, paths) {
-			if (!!paths && paths[0].ver == 1) {
-				var beginPos, color, cvsPos = $('#brush').offset(), me = this;
-				for (var index in paths) {
-					var path = paths[index];
-					switch (path.type) {
-						case 0: beginPos = path; break;
-						case 1: ctx.fillStyle = path.color; break;
-						case 2: color = path.color; break;
-						case 3: this.size = path.size; break;
-						case 6: ctx.globalAlpha = path.alpha; break;
-					}
-				}
-				ctx.font = this.size + 'px sans-serif #' + color;
-				this.box.css({
-					left: cvsPos.left + beginPos.x + 'px',
-					top: cvsPos.top + beginPos.y + 'px',
-				}).val('').bind('keyup', doKeyUp).show().focus();
-				
-				function doKeyUp (evt) {
-					if (evt.keyCode == 13)
-						ctx.strokeText(me.box.val(), beginPos.x, beginPos.y)
+		this.begin = function (ctx, paths, draw) {
+			if (!!this.text && !!this.paths && !!this.paths.length)
+				this._draw.update(this.paths);
+			this.index = paths.length;
+			this.paths = paths;
+			this._draw = draw;
+			var beginPos, cvsPos = $('#brush').offset(), me = this;
+			for (var index in paths) {
+				var path = paths[index];
+				switch (path.type) {
+					case 0: beginPos = path; break;
+					case 2: this.color = path.color; break;
+					case 3: this.size = path.size; break;
+					case 6: this.alpha = path.alpha; break;
 				}
 			}
+			this.text = '';
+			this.box.css({
+				left: cvsPos.left + beginPos.x + 'px',
+				top: cvsPos.top + beginPos.y + 'px',
+			}).val('').bind('keyup', doKeyUp).show().focus();
 			
+			function doKeyUp (evt) {
+				var paths = me.paths;
+				paths[me.index] = {
+					type: me.action,
+					val: me.text = this.value
+				};
+				paths[0].ver ++;
+				me.paths = me._draw.tempPath = paths;
+			}
+		};
+		this.render = function (ctx, paths) {
+			if (!!paths) {
+				ctx.globalAlpha = this.alpha;
+				ctx.font = 'normal normal  ' + this.size + 'px serif';
+				ctx.strokeStyle = this.color;
+				ctx.strokeText(paths[this.index].val, paths[5].x, paths[5].y);
+			}
 		};
 		this.end = function () {
+			if (!!this.text && !!this.paths && !!this.paths.length)
+				this._draw.update(this.paths);
 			this.box.hide();
+			this.text = '';
+			this.paths = null;
+			$('#fillIpt').attr('disabled', false);
+		};
+		this.finish = function () {
+			this._draw.tempVer = 0;
 		}
 	}
 	/** 选择游标插件. */

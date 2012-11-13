@@ -1,3 +1,3 @@
 
-
+.plugin-TEXT-bg { cursor: default; border: 1px solid #333; position: absolute; z-index: 8; overflow: hidden; }
 .plugin-TEXT-ipt { width: 180px; line-height: 24px; height: 24p; position: absolute; z-index: 10; }

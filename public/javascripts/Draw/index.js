@@ -57,13 +57,17 @@ MT.plugin = MT.plugin || {};
 			var me = this;
 			this.opt.elem.find('a').live('click', function () {
 				var $this = $(this), key = $this.data('operation');
+				if (!!me.curOperaion && !!me.curOperaion.end)
+					me.curOperaion.end();
 				me.curOperaion = operationsMap[key];
 				if (me.curOperaion.type == 0) {
 					me.opt.elem.find('a').removeClass('on');
 					this.className = 'on';
 				}
-				me.curOperaion.ready(this);
+				if (!!me.curOperaion && !!me.curOperaion.ready)
+					me.curOperaion.ready(this, me);
 				$(window).trigger('onReadyDraw', [$(this).data('operation')]);
+				$(window).trigger('resize');
 			});
 			this.opt.scroll = $(window).scrollTop();
 			this.opt.top = this.opt.head.get(0).offsetHeight;
@@ -128,7 +132,6 @@ MT.plugin = MT.plugin || {};
 	        });
 			$(window).bind('onReadyDraw', function (evt, type) {
 				me.curOperaion = operationsMap[type];
-				me.beginDraw();
 			}).bind('resize', function (evt) {
 				me.resize();
 			});
@@ -157,24 +160,28 @@ MT.plugin = MT.plugin || {};
 					size: $('#sizeIpt').val()
 				}, {
 					type: 6,
-					alpha: $('#aliphaIpt').val()
+					alpha: $('#alphaIpt').val()
 				}, {
 					type: 0,
 					x: win.scrollLeft() + evt.clientX - me.pos.left,
 					y: win.scrollTop() + evt.clientY - me.pos.top
 				}];
+				me.beginDraw();
 			}
 			function doDrawEnd(evt) {
-				me.draw(me.boxCtx, me.tempPath);
-				doDrawBreak();
+				if (!!me.tempPath && me.tempPath.length > 6) {
+					me.update(me.tempPath);
+				}
+				doDrawBreak.call(me.temp);
 			}
 			function doDrawMove(evt) {
+				if (!me.curOperaion) return;
 				var curX = win.scrollLeft() + evt.clientX - me.pos.left, 
 					curY = win.scrollTop() + evt.clientY - me.pos.top;
 				if (!!me.tempPath && (curX != me.lastX || curY != me.lastY)) {
 					me.tempPath[0].ver = me.tempPath[0].ver + 1; 
 					me.tempPath[6] = {
-						type: 5, x: curX, y: curY
+						type: 5, x: curX, y: curY, plugin: me.curOperaion.action
 					};
 					me.lastX = curX;
 					me.lastY = curY;
@@ -183,7 +190,7 @@ MT.plugin = MT.plugin || {};
 			function doDrawBreak(evt) {
 				var $this = $(this);
 				$this.unbind('mouseup');
-				$this.unbind('mouseover');
+				$this.unbind('mouseout');
 				$this.unbind('mousemove', doDrawMove);
 				me.tempPath = null;
 				me.tempVer = -1;
@@ -197,9 +204,9 @@ MT.plugin = MT.plugin || {};
 			}
 			// 临时画板的桢渲染，暂时定20fps/s
 			setInterval(function () {
-				$('#posXIpt').val(me.mouseX);
-				$('#posYIpt').val(me.mouseY);
-				
+				$('#posXIpt').val(me.tempVer); // me.mouseX);
+				$('#posYIpt').val(me.tempPath ? me.tempPath[0].ver : -1); // me.mouseY);
+
 				if (!me.tempPath || me.tempVer == -1 || me.tempVer == me.tempPath[0].ver || me.tempPath.length < 7) return;
 				var ctx = me.tempCtx, paths = me.tempPath;
 				ctx.clearRect(0, 0, width, height);
@@ -208,10 +215,13 @@ MT.plugin = MT.plugin || {};
 			}, 45);
 		},
 		beginDraw: function () {
-			
+			if (!!this.curOperaion && !!this.curOperaion.begin)
+				this.curOperaion.begin(this.tempCtx, this.tempPath, this);
 		},
 		endDraw: function () {
-			
+			if (!!this.curOperaion && !!this.curOperaion.end) {
+				this.curOperaion.finish(this.boxCtx, this.tempPath, this);
+			}
 		},
 		draw: function (ctx, paths) {
 			if (!this.curOperaion) return;
@@ -223,18 +233,22 @@ MT.plugin = MT.plugin || {};
 			ctx.restore();
 		},
 		/** 更新界面. */
-		update: function () {
-			
+		update: function (paths) {
+			this.history.push(paths);
+			this.draw(this.boxCtx, paths);
 		},
 		/** 改变尺寸 并且重新计算位置. */
 		resize: function () {
-			this.pos = this.view.offset();
+			this.pos = this.view.offset(), plugin = this.curOperaion;
 			var styles = {
 				left: this.pos.left + 'px',
 				top: this.pos.top + 'px'
 			};
 			this.box.css(styles);
 			this.temp.css(styles);
+			if (!!plugin && !!plugin.resize) {
+				plugin.resize(styles);
+			}
 		}
 	}
 	
@@ -284,7 +298,7 @@ MT.plugin = MT.plugin || {};
 		},
 		_render: function () {
 			var html = ['<label>线颜色:<input id="colorIpt" type="text" value="000000" /></label>'];
-			html.push('<label>透明度:<input id="aliphaIpt" type="range" value="1" min="0" max="1" step="0.05" /></label>');
+			html.push('<label>透明度:<input id="alphaIpt" type="range" value="1" min="0" max="1" step="0.05" /></label>');
 			html.push('<label>线条宽:<input id="sizeIpt" class="ipt-32" type="number" value="1" min="1" max="20" step="1" /></label><br>');
 			html.push('<label>背景色:<input id="fillIpt" type="text" value="FFFFFF" /></label>');
 			html.push('坐标参数:<label>X:<input id="posXIpt" class="ipt-32" type="text" /></label>');
@@ -298,16 +312,33 @@ MT.plugin = MT.plugin || {};
 			me.opt.top = me.opt.foot.offset().top;
 			me.opt.scroll = $(window).scrollTop();
 			
-			$(window).bind('scroll', function () {
+			$('#colorIpt').bind('change', function () {
+				if (!!me.curOperaion)
+					me.curOperaion.color = this.value;
+			});
+			$('#alphaIpt').bind('change', function () {
+				if (!!me.curOperaion)
+					me.curOperaion.alpha = this.value;
+			});
+			$('#sizeIpt').bind('change', function () {
+				if (!!me.curOperaion)
+					me.curOperaion.size = this.value;
+			});
+			$('#fillIpt').bind('change', function () {
+				if (!!me.curOperaion)
+					me.curOperaion.fill = this.value;
+			});
+			$(window).bind({scroll: function () {
 				me.opt.top = me.opt.foot.offset().top;
 				me.opt.scroll = $(window).scrollTop();
 				me.resize();
-			});
-			$(window).bind('resize', function () {
+			}, resize: function () {
 				me.opt.height = $(window).height();
 				me.opt.top = me.opt.foot.offset().top;
 				me.resize();
-			});
+			}, onReadyDraw: function (evt, type) {
+				me.curOperaion = operationsMap[type];
+			}});
 			this.resize();
 		},
 		resize: function () {
